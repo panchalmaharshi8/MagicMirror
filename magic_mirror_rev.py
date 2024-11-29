@@ -42,7 +42,6 @@ while True:
     # Add text to the second window
     cv2.putText(text_window, "Dad - press x", (50, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2, cv2.LINE_AA)
     cv2.putText(text_window, "Bad - press z", (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2, cv2.LINE_AA)
-    
 
     # Display the second window
     cv2.imshow("Text Window", text_window)
@@ -107,13 +106,13 @@ while True:
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):  # Quit
         break
-    elif key == ord('x') and not video_playing:  # Play video_x
+    elif key == ord('z') and not video_playing:  # Play video_x
         current_video = video_x
         video_x.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reset video to start
         video_playing = True
         static_lip_bbox = None  # Force detection of lips
         print("Playing video_x")
-    elif key == ord('z') and not video_playing:  # Play video_z
+    elif key == ord('x') and not video_playing:  # Play video_z
         current_video = video_z
         video_z.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reset video to start
         video_playing = True
