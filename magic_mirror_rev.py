@@ -23,6 +23,12 @@ video_playing = False  # Track whether a video is currently playing
 static_lip_bbox = None  # Store the bounding box of lips
 extension_factor = 1.9  # Extend the overlay slightly beyond bounding box
 
+# Variables for text animation
+text_alpha = 0  # Controls text transparency
+text_direction = 1  # 1 for fade in, -1 for fade out
+animation_speed = 5
+current_text = ""
+
 def get_lip_bounding_box(landmarks, w, h):
     # Lip landmark indices for outer lip region
     outer_lip_indices = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291, 375, 321, 405, 314, 17]
@@ -35,7 +41,27 @@ def get_lip_bounding_box(landmarks, w, h):
 
     return x_min, y_min, x_max, y_max
 
+def animate_text(frame, text, x, y):
+    global text_alpha, text_direction
+
+    # Update alpha value
+    text_alpha += animation_speed * text_direction
+
+    # Reverse direction at limits
+    if text_alpha >= 255:
+        text_alpha = 255
+        text_direction = -1
+    elif text_alpha <= 0:
+        text_alpha = 0
+        text_direction = 1
+
+    # Render text with current alpha
+    overlay = frame.copy()
+    cv2.putText(overlay, text, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255, text_alpha), 2, cv2.LINE_AA)
+    cv2.addWeighted(overlay, text_alpha / 255.0, frame, 1 - text_alpha / 255.0, 0, frame)
+
 while True:
+
     # Create a blank white background for the second window
     text_window = np.ones((200, 400, 3), dtype=np.uint8) * 255
 
@@ -99,6 +125,13 @@ while True:
         else:
             print("Error: video_frame is None, skipping overlay.")
 
+    # Animate text at the bottom of the screen
+    if video_playing and current_text:
+        text_size = cv2.getTextSize(current_text, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
+        text_x = (w - text_size[0]) // 2  # Center the text horizontally
+        text_y = h - 30  # Position the text at the bottom
+        animate_text(frame, current_text, text_x, text_y)
+
     # Display the frame
     cv2.imshow("Magic Mirror - Static Lip Video Overlay", frame)
 
@@ -111,12 +144,18 @@ while True:
         video_x.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reset video to start
         video_playing = True
         static_lip_bbox = None  # Force detection of lips
+        current_text = "dad"
+        text_alpha = 0  # Reset animation
+        text_direction = 1
         print("Playing video_x")
     elif key == ord('x') and not video_playing:  # Play video_z
         current_video = video_z
         video_z.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reset video to start
         video_playing = True
         static_lip_bbox = None  # Force detection of lips
+        current_text = "bad"
+        text_alpha = 0  # Reset animation
+        text_direction = 1
         print("Playing video_z")
 
 cap.release()
