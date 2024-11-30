@@ -147,18 +147,27 @@ while True:
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):  # Quit the application
         break
-    elif key == ord(key1) and not video_playing:  # Play the first video
-        current_video = video_captures[key1]
+    # Handle keypress for playing videos
+    elif key == ord(key1) and not video_playing:  # Check if it's the "Bad" and "Dad" case
+        if word1 == "Bad" and word2 == "Dad":  # Swap logic
+            current_video = video_captures[key2]  # Play "Dad" for "Bad"
+        else:
+            current_video = video_captures[key1]
         current_video.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reset video to start
         video_playing = True
         static_lip_bbox = None  # Reset lip detection
         print(f"Playing '{word1}' video")
-    elif key == ord(key2) and not video_playing:  # Play the second video
-        current_video = video_captures[key2]
+
+    elif key == ord(key2) and not video_playing:
+        if word1 == "Bad" and word2 == "Dad":  # Swap logic
+            current_video = video_captures[key1]  # Play "Bad" for "Dad"
+        else:
+            current_video = video_captures[key2]
         current_video.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reset video to start
         video_playing = True
         static_lip_bbox = None  # Reset lip detection
         print(f"Playing '{word2}' video")
+        
     elif key == 13:  # Enter key moves to the next pair
         current_pair_index = (current_pair_index + 1) % len(word_pairs)
         video_playing = False
