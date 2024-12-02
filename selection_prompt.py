@@ -6,12 +6,12 @@ import os
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 # Ensure the "trial results" directory exists
-os.makedirs("trial results", exist_ok=True)
+os.makedirs("trial_results", exist_ok=True)
 
 # Function to handle button clicks
 def record_selection(round_num, choice):
     logging.info(f"Round {round_num}: User selected '{choice}'")
-    with open(f"trial results/Trial_{user_name.get()}.txt", "a") as file:
+    with open(f"trial_results/Trial_{user_name.get()}.txt", "a") as file:
         file.write(f"Round {round_num}: User selected '{choice}'\n")
     if round_num < 5:
         update_screen(round_num + 1)
@@ -44,7 +44,7 @@ def update_screen(round_num):
 # Function to start the rounds after getting the user's name
 def start_rounds():
     user_name.set(entry_name.get())
-    with open(f"trial results/Trial_{user_name.get()}.txt", "w") as file:
+    with open(f"trial_results/Trial_{user_name.get()}.txt", "w") as file:
         file.write(f"User Name: {user_name.get()}\n")
     entry_name.pack_forget()
     button_start.pack_forget()
