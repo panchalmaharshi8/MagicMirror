@@ -52,7 +52,7 @@ for key, cap in video_captures.items():
         exit()
 
 # Open the webcam
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     print("Error: Could not open webcam")
     exit()
@@ -63,6 +63,12 @@ video_playing = False  # Track whether a video is currently playing
 current_pair_index = 0  # Start with the first word pair
 static_lip_bbox = None  # Store the bounding box of lips
 extension_factor = 1.9  # Extend the overlay slightly beyond bounding box
+
+# Variables for text animation
+text_alpha = 0  # Controls text transparency
+text_direction = 1  # 1 for fade in, -1 for fade out
+animation_speed = 5
+current_text = ""
 
 def get_lip_bounding_box(landmarks, w, h):
     """Calculate the bounding box for lips based on face landmarks."""
@@ -75,6 +81,26 @@ def get_lip_bounding_box(landmarks, w, h):
     y_max = max([p[1] for p in lip_points])
 
     return x_min, y_min, x_max, y_max
+
+def animate_text(frame, text, x, y):
+    global text_alpha, text_direction
+
+    # Update alpha value
+    text_alpha += animation_speed * text_direction
+
+    # Reverse direction at limits
+    if text_alpha >= 255:
+        text_alpha = 255
+        text_direction = -1
+    elif text_alpha <= 0:
+        text_alpha = 0
+        text_direction = 1
+
+    # Render text with current alpha
+    overlay = frame.copy()
+    cv2.putText(overlay, text, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255, text_alpha), 2, cv2.LINE_AA)
+    cv2.addWeighted(overlay, text_alpha / 255.0, frame, 1 - text_alpha / 255.0, 0, frame)
+
 
 while True:
     # Get the current word pair
@@ -140,6 +166,13 @@ while True:
         else:
             print("Error: video_frame is None, skipping overlay.")
 
+    # Animate text at the bottom of the screen
+    if video_playing and current_text:
+        text_size = cv2.getTextSize(current_text, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
+        text_x = (w - text_size[0]) // 2  # Center the text horizontally
+        text_y = h - 30  # Position the text at the bottom
+        animate_text(frame, current_text, text_x, text_y)
+
     # Display the frame with the video overlay
     cv2.imshow("Magic Mirror - Lip Overlay", frame)
 
@@ -151,21 +184,29 @@ while True:
     elif key == ord(key1) and not video_playing:  # Check if it's the "Bad" and "Dad" case
         if word1 == "Bad" and word2 == "Dad":  # Swap logic
             current_video = video_captures[key2]  # Play "Dad" for "Bad"
+            current_text = "Dad"
         else:
             current_video = video_captures[key1]
+            current_text = word1
         current_video.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reset video to start
         video_playing = True
         static_lip_bbox = None  # Reset lip detection
+        text_alpha = 0  # Reset animation
+        text_direction = 1
         print(f"Playing '{word1}' video")
 
     elif key == ord(key2) and not video_playing:
         if word1 == "Bad" and word2 == "Dad":  # Swap logic
             current_video = video_captures[key1]  # Play "Bad" for "Dad"
+            current_text = "Bad"
         else:
             current_video = video_captures[key2]
+            current_text = word2
         current_video.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reset video to start
         video_playing = True
         static_lip_bbox = None  # Reset lip detection
+        text_alpha = 0  # Reset animation
+        text_direction = 1
         print(f"Playing '{word2}' video")
         
     elif key == 13:  # Enter key moves to the next pair
