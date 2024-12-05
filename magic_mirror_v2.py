@@ -21,7 +21,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 # Define the relative path to the video folder
-video_folder = os.path.join(current_dir, "audio_clips/trial_subject_4")
+video_folder = os.path.join(current_dir, "audio_clips/trial subject 8")
 
 # Paths to pre-recorded lip videos using relative paths
 video_paths = {
