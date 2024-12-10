@@ -1,6 +1,5 @@
-User Name: Danielle
 Round 1: User selected 'Brass'
 Round 2: User selected 'Pool'
-Round 3: User selected 'Meal'
+Round 3: User selected 'Meal' (user said steal)
 Round 4: User selected 'Bad'
 Round 5: User selected 'Bin'

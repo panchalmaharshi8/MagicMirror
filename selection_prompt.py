@@ -45,7 +45,7 @@ def update_screen(round_num):
 def start_rounds():
     user_name.set(entry_name.get())
     with open(f"trial_results/Trial_{user_name.get()}.txt", "w") as file:
-        file.write(f"User Name: {user_name.get()}\n")
+        file.write(f"User ID: {user_name.get()}\n")
     entry_name.pack_forget()
     button_start.pack_forget()
     update_screen(1)
@@ -56,7 +56,7 @@ root.title("Selection Prompt")
 root.geometry("400x200")
 
 # Create a label for the screen text
-label = tk.Label(root, text="Please enter your name:", font=("Arial", 14), wraplength=350)
+label = tk.Label(root, text="Please enter your User ID:", font=("Arial", 14), wraplength=350)
 label.pack(pady=20)
 
 # Create an entry widget for the user's name
